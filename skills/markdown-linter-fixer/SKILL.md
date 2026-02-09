@@ -1,10 +1,26 @@
 ---
 name: markdown-linter-fixer
-description: Systematically fix linting issues in markdown files using markdownlint-cli2. This skill should be used when needing to scan, diagnose, and fix markdown formatting issues in projects with one or more .md files, with special attention to ordered list numbering (MD029) errors.
+description: Fix markdownlint errors in markdown files using markdownlint-cli2. Use when asked to "markdown linter fixer", "run markdownlint", "fix markdown lint errors", "fix MD029", or "resolve ordered list issues" across one or more .md files.
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
 # Markdown Linter Fixer
+
+## Contents
+
+- [Overview](#overview)
+- [When to Use This Skill](#when-to-use-this-skill)
+- [Workflow Process](#workflow-process)
+  - [Phase 1: Environment Setup & Prerequisites](#phase-1-environment-setup--prerequisites)
+  - [Phase 2: Diagnostic Assessment](#phase-2-diagnostic-assessment)
+  - [Phase 3: Issue Analysis](#phase-3-issue-analysis)
+  - [Phase 4: Automatic Fixes](#phase-4-automatic-fixes)
+  - [Phase 5: Manual Fixes](#phase-5-manual-fixes)
+  - [Phase 6: Verification & Reporting](#phase-6-verification--reporting)
+- [Quick Reference Checklist](#quick-reference-checklist)
+- [Key Principles](#key-principles)
+- [Common Scenarios](#common-scenarios)
+- [Resources](#resources)
 
 ## Overview
 
@@ -222,77 +238,31 @@ Provide a comprehensive summary including:
    - Clear explanation of remaining work needed
    - Any error details with suggested solutions
 
+## Quick Reference Checklist
+
+- [ ] Verify markdownlint availability: `markdownlint-cli2 --version`
+- [ ] Create or validate markdownlint config (`.markdownlint-cli2.jsonc` preferred)
+- [ ] Run diagnostics: `markdownlint-cli2 "**/*.md"`
+- [ ] Apply auto-fixes: `markdownlint-cli2 "**/*.md" --fix`
+- [ ] Resolve remaining issues manually using `references/MD029-Fix-Guide.md` and `references/MD036-Guide.md` as needed
+- [ ] Re-run verification: `markdownlint-cli2 "**/*.md"`
+- [ ] Summarize files changed, issue types fixed, and any remaining blockers
+
 ## Key Principles
 
-### Preserve Content Intent
-
-Always maintain the original meaning and structure of markdown content. Fix formatting without altering the author's intended message.
-
-### Configuration Awareness
-
-Respect existing markdown configuration files. Don't override project-specific linting rules unless explicitly requested.
-
-### Progressive Fixing
-
-Work from automatic fixes first, then manual fixes. This maximizes efficiency and reduces the risk of introducing errors.
-
-### Comprehensive Reporting
-
-Provide clear, detailed reports at each phase so users understand:
-
-- What was found
-- What was fixed
-- What remains (if anything)
-- How to proceed
-
-### Error Handling
-
-When encountering errors:
-
-- Provide clear error messages
-- Suggest alternative approaches
-- Offer workarounds if primary methods fail
-- Never proceed without user confirmation on alternative paths
+- Preserve content intent: fix formatting without changing meaning.
+- Respect project configuration: do not override existing lint rules unless explicitly requested.
+- Do not suppress or hide errors without user consent; fix issues rather than masking them.
+- Apply progressive fixing: auto-fix first, then manual fixes for remaining issues.
+- Report clearly: what was found, what was fixed, and what still needs action.
 
 ## Common Scenarios
 
-### Scenario 1: Clean Project Setup
-
-User request: "Set up markdown linting for my documentation"
-
-Process:
-
-1. Install markdownlint-cli2
-2. Create `.markdownlint-cli2.jsonc` with MD013 disabled
-3. Run diagnostic scan
-4. Execute auto-fix
-5. Report results
-
-### Scenario 2: Fix Existing Issues
-
-User request: "Fix all markdown linting errors in my project"
-
-Process:
-
-1. Verify markdownlint-cli2 available
-2. Run comprehensive diagnostic
-3. Categorize and report issues
-4. Execute auto-fix
-5. Guide through remaining manual fixes
-6. Verify and report completion
-
-### Scenario 3: MD029-Focused Fixing
-
-User request: "I have ordered list numbering issues in my markdown files" or "My lists with code blocks are showing MD029 errors"
-
-Process:
-
-1. Scan for MD029 errors specifically
-2. Attempt auto-fix
-3. For remaining issues, load MD029-Fix-Guide.md
-4. Guide through proper 4-space indentation for code blocks and content within lists
-5. Verify list continuity is maintained
-6. Report completion
+| User Request Pattern | Workflow Emphasis | References |
+| --- | --- | --- |
+| "Set up markdown linting for my documentation" | Phase 1 -> Phase 2 -> Phase 4 -> Phase 6 | N/A |
+| "Fix all markdown linting errors in my project" | Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6 | Load MD029/MD036 guides only if related errors remain |
+| "Fix MD029" / "ordered list issues" | Phase 2 (target MD029) -> Phase 4 -> Phase 5 -> Phase 6 | `references/MD029-Fix-Guide.md` |
 
 ## Resources
 
