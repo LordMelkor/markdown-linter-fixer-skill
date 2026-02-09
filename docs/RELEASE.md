@@ -27,18 +27,7 @@ Current version must be kept in sync across:
 - `.claude-plugin/plugin.json` (`version`)
 - `.claude-plugin/marketplace.json` (`plugins[0].version`)
 
-The repository pre-commit hook validates this consistency when any of these files are staged.
-
-## Pre-commit Hook Setup
-
-This repository provides a versioned hook at `.githooks/pre-commit`.
-
-Enable it once per clone:
-
-```bash
-git config core.hooksPath .githooks
-chmod +x .githooks/pre-commit
-```
+Use your local/internal tooling to validate these versions stay consistent before committing.
 
 ## Creating a Release
 
