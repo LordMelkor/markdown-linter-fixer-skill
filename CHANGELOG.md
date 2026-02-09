@@ -5,6 +5,27 @@ All notable changes to the Markdown Linter Fixer skill will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.5] - 2026-02-09
+
+### Added in 1.5.5
+
+- Codex CLI skill support:
+  - Added `skills/markdown-linter-fixer/agents/openai.yaml` for Codex UI metadata
+  - Added `scripts/install-codex-skill.sh` to install the skill into `${CODEX_HOME:-~/.codex}/skills`
+  - Added `scripts/uninstall-codex-skill.sh` to remove the skill from Codex
+- Codex installation/uninstallation documentation in `INSTALLATION.md`
+
+### Changed in 1.5.5
+
+- Updated `README.md` to include Codex platform support, Codex prerequisites, and explicit `$markdown-linter-fixer` usage example
+- Reduced duplication (DRY): `README.md` now points to canonical Codex install/uninstall instructions in `INSTALLATION.md`
+
+### Fixed in 1.5.5
+
+- Resolved markdownlint issues discovered during full-repo linting:
+  - `MD024` duplicate headings in `INSTALLATION.md`
+  - `MD060` table column style in `skills/markdown-linter-fixer/references/MD029-Fix-Guide.md`
+
 ## [1.5.4] - 2025-10-26
 
 ### Changed in 1.5.4
