@@ -103,13 +103,13 @@ You can mix different types of content by maintaining proper indentation:
 
 ## Indentation Rules
 
-| Content Type | Indentation Required |
-|--------------|---------------------|
-| Code blocks (fenced) | 4 spaces minimum |
-| Code blocks (indented) | 8 spaces minimum |
-| Paragraphs | 4 spaces (recommended) |
-| Blockquotes | 4 spaces + `>` |
-| Nested lists | 4 spaces per level |
+|Content Type|Indentation Required|
+|---|---|
+|Code blocks (fenced)|4 spaces minimum|
+|Code blocks (indented)|8 spaces minimum|
+|Paragraphs|4 spaces (recommended)|
+|Blockquotes|4 spaces + `>`|
+|Nested lists|4 spaces per level|
 
 ## Common Mistakes to Avoid
 
