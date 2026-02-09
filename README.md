@@ -10,6 +10,7 @@ This skill provides Claude with structured workflows to diagnose, fix, and verif
 
 - **Claude Code**: Install as a plugin via marketplace
 - **VS Code**: Install as a custom chat mode for GitHub Copilot
+- **Codex CLI**: Install as a local Codex skill
 
 ## What This Skill Does
 
@@ -40,6 +41,10 @@ The **MD029 error** (ordered list item prefix) is particularly common and confus
 - **[Changelog](CHANGELOG.md)** - Version history and release notes
 
 ## Installation
+
+### For Codex CLI Users
+
+Use the canonical Codex instructions in [INSTALLATION.md](INSTALLATION.md#codex-cli-installation), including [uninstall](INSTALLATION.md#uninstall-from-codex) and verification steps.
 
 ### For VS Code Users (GitHub Copilot Chat)
 
@@ -100,6 +105,10 @@ See **[INSTALLATION.md](INSTALLATION.md)**.
 
 - Claude Code version 2.0.0 or higher (for plugin marketplace support)
 
+**For Codex CLI users:**
+
+- Codex CLI with access to `$CODEX_HOME/skills` (defaults to `~/.codex/skills`)
+
 **For all platforms:**
 
 The skill uses `markdownlint-cli2` under the hood to perform linting and fixes. You don't need to install it beforehand - Claude/VS Code will automatically check for it and guide you through installation if needed:
@@ -114,13 +123,19 @@ npm install --save-dev markdownlint-cli2
 
 ## Usage
 
-Once installed, Claude automatically activates this skill when you:
+Once installed, Claude/Codex automatically activates this skill when you:
 
 - Ask about "markdown linting issues"
 - Mention "fixing MD029 errors"
 - Request to "scan markdown files"
 - Say "I have ordered list numbering problems"
 - Ask to "set up markdown linting"
+
+In Codex, you can also explicitly call the skill by name in your prompt:
+
+```text
+Use $markdown-linter-fixer to scan and fix markdown lint errors in this repo.
+```
 
 ### Slash Command
 

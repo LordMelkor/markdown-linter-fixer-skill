@@ -8,6 +8,48 @@ This skill is available for:
 
 - **VS Code**: Install as a custom chat mode for GitHub Copilot (see [VS Code Installation](#vs-code-installation))
 - **Claude Code**: Install as a plugin via marketplace (see [Claude Code Installation](#claude-code-installation))
+- **Codex CLI**: Install as a local skill (see [Codex CLI Installation](#codex-cli-installation))
+
+## Codex CLI Installation
+
+### Quick Start
+
+From this repository root:
+
+```bash
+./scripts/install-codex-skill.sh
+```
+
+This installs the skill into:
+
+```text
+${CODEX_HOME:-~/.codex}/skills/markdown-linter-fixer
+```
+
+Restart Codex CLI (or start a new session) after installation so the skill is reloaded.
+
+### Uninstall from Codex
+
+```bash
+./scripts/uninstall-codex-skill.sh
+```
+
+### Manual Installation
+
+```bash
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+cp -R skills/markdown-linter-fixer "${CODEX_HOME:-$HOME/.codex}/skills/"
+```
+
+### Verify in Codex
+
+1. Confirm `SKILL.md` exists at `${CODEX_HOME:-~/.codex}/skills/markdown-linter-fixer/SKILL.md`
+2. Start a new Codex session
+3. Prompt with clear intent or explicit skill name, for example:
+
+```text
+Use $markdown-linter-fixer to check and fix markdown lint issues in this project.
+```
 
 ## VS Code Installation
 
