@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Set SKIP_MD_CODEX_PRECOMMIT=1 to bypass temporarily.
+if [[ "${SKIP_MD_CODEX_PRECOMMIT:-0}" == "1" ]]; then
+  exit 0
+fi
+
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$repo_root" ]]; then
+  echo "pre-commit: unable to determine git repo root" >&2
+  exit 1
+fi
+
+cd "$repo_root"
+
+is_staged() {
+  local path="$1"
+  git diff --cached --name-only -- "$path" | grep -q .
+}
+
+extract_changelog_version() {
+  sed -nE 's/^## \[([0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?)\].*$/\1/p' CHANGELOG.md | head -n1
+}
+
+extract_json_version() {
+  local path="$1"
+  sed -nE 's/^[[:space:]]*"version":[[:space:]]*"([^"]+)".*$/\1/p' "$path" | head -n1
+}
+
+validate_version_consistency() {
+  local changelog_version plugin_version marketplace_version
+  changelog_version="$(extract_changelog_version)"
+  plugin_version="$(extract_json_version ".claude-plugin/plugin.json")"
+  marketplace_version="$(extract_json_version ".claude-plugin/marketplace.json")"
+
+  if [[ -z "$changelog_version" || -z "$plugin_version" || -z "$marketplace_version" ]]; then
+    echo "pre-commit: unable to extract version from changelog or plugin manifests" >&2
+    exit 1
+  fi
+
+  if [[ "$changelog_version" != "$plugin_version" || "$plugin_version" != "$marketplace_version" ]]; then
+    echo "pre-commit: version mismatch detected; commit blocked" >&2
+    echo "  CHANGELOG.md:                 $changelog_version" >&2
+    echo "  .claude-plugin/plugin.json:  $plugin_version" >&2
+    echo "  .claude-plugin/marketplace.json: $marketplace_version" >&2
+    echo "pre-commit: update all version sources to the same value" >&2
+    exit 1
+  fi
+
+  echo "pre-commit: version consistency check passed ($plugin_version)" >&2
+}
+
+if is_staged "CHANGELOG.md" || is_staged ".claude-plugin/plugin.json" || is_staged ".claude-plugin/marketplace.json"; then
+  echo "pre-commit: validating version consistency..." >&2
+  validate_version_consistency
+fi
+
+if ! command -v codex >/dev/null 2>&1; then
+  echo "pre-commit: codex CLI is required but was not found in PATH" >&2
+  exit 1
+fi
+
+lint_cmd=()
+if command -v markdownlint-cli2 >/dev/null 2>&1; then
+  lint_cmd=(markdownlint-cli2)
+elif command -v npx >/dev/null 2>&1 && npx --no-install markdownlint-cli2 --version >/dev/null 2>&1; then
+  lint_cmd=(npx --no-install markdownlint-cli2)
+else
+  echo "pre-commit: markdownlint-cli2 is required (install globally or as local npm dependency)" >&2
+  exit 1
+fi
+
+mapfile -d '' staged_md_files < <(git diff --cached --name-only --diff-filter=ACMR -z -- '*.md')
+if [[ ${#staged_md_files[@]} -eq 0 ]]; then
+  exit 0
+fi
+
+echo "pre-commit: running Codex markdown-linter-fixer on staged markdown files..." >&2
+
+for md_file in "${staged_md_files[@]}"; do
+  if [[ ! -f "$md_file" ]]; then
+    continue
+  fi
+
+  prompt=$(cat <<PROMPT
+Use \$markdown-linter-fixer to fix markdown lint issues in this specific file:
+$md_file
+
+Requirements:
+- Only edit this file.
+- Do not edit markdownlint config files.
+- Ensure markdownlint passes for this file.
+PROMPT
+)
+
+  if ! codex exec --dangerously-bypass-approvals-and-sandbox -C "$repo_root" "$prompt"; then
+    echo "pre-commit: codex failed while fixing '$md_file'" >&2
+    exit 1
+  fi
+
+  git add -- "$md_file"
+done
+
+mapfile -d '' staged_md_files_after < <(git diff --cached --name-only --diff-filter=ACMR -z -- '*.md')
+if [[ ${#staged_md_files_after[@]} -eq 0 ]]; then
+  exit 0
+fi
+
+echo "pre-commit: verifying markdown lint..." >&2
+if ! "${lint_cmd[@]}" "${staged_md_files_after[@]}"; then
+  echo "pre-commit: markdownlint verification failed; commit blocked" >&2
+  exit 1
+fi
+
+echo "pre-commit: markdown lint passed" >&2

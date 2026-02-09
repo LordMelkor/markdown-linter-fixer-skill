@@ -7,7 +7,7 @@ This document describes how to create a new release of the Markdown Linter Fixer
 The release process involves:
 
 1. Creating a release branch
-2. Updating the version in `marketplace.json`
+2. Updating all version sources
 3. Creating a Pull Request for review
 4. Merging the PR
 5. Creating and pushing a git tag
@@ -21,7 +21,24 @@ We follow [Semantic Versioning](https://semver.org/):
 - **MINOR** (0.X.0): New features in a backward-compatible manner
 - **PATCH** (0.0.X): Backward-compatible bug fixes
 
-Current version is stored in `.claude-plugin/marketplace.json`.
+Current version must be kept in sync across:
+
+- `CHANGELOG.md` (top release heading, e.g. `## [1.5.6] - 2026-02-09`)
+- `.claude-plugin/plugin.json` (`version`)
+- `.claude-plugin/marketplace.json` (`plugins[0].version`)
+
+The repository pre-commit hook validates this consistency when any of these files are staged.
+
+## Pre-commit Hook Setup
+
+This repository provides a versioned hook at `.githooks/pre-commit`.
+
+Enable it once per clone:
+
+```bash
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-commit
+```
 
 ## Creating a Release
 
@@ -35,20 +52,23 @@ export MD_FIXER_VERSION="1.5.0"
 git checkout -b release/v$MD_FIXER_VERSION
 ```
 
-### Step 2: Update Version Number
+### Step 2: Update Version Number in All Sources
 
-Update the version in `.claude-plugin/marketplace.json` using jq:
+Update both plugin manifests using jq:
 
 ```bash
 jq --arg version "$MD_FIXER_VERSION" '.plugins[0].version = $version' .claude-plugin/marketplace.json > .claude-plugin/marketplace.json.tmp && mv .claude-plugin/marketplace.json.tmp .claude-plugin/marketplace.json
+jq --arg version "$MD_FIXER_VERSION" '.version = $version' .claude-plugin/plugin.json > .claude-plugin/plugin.json.tmp && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
 ```
 
-Or manually edit the file if jq is not available.
+Then update `CHANGELOG.md` by adding a new top entry with the same version.
+
+Or manually edit all three files if jq is not available.
 
 ### Step 3: Commit and Push Branch
 
 ```bash
-git add .claude-plugin/marketplace.json
+git add CHANGELOG.md .claude-plugin/plugin.json .claude-plugin/marketplace.json
 git commit -m "chore: bump version to $MD_FIXER_VERSION"
 git push -u origin release/v$MD_FIXER_VERSION
 ```
@@ -70,7 +90,7 @@ Or create it via the [GitHub web UI](https://github.com/s2005/markdown-linter-fi
 ### Step 5: Review and Merge PR
 
 1. Review the PR
-2. Verify the version number is correct in `.claude-plugin/marketplace.json`
+2. Verify versions match across `CHANGELOG.md`, `.claude-plugin/plugin.json`, and `.claude-plugin/marketplace.json`
 3. Merge the PR to `main`
 
 ### Step 6: Create and Push Tag
@@ -110,7 +130,7 @@ Or via the GitHub web UI:
 
 When you create a GitHub release, the **Release Skill** workflow automatically:
 
-1. ✓ Extracts version from `marketplace.json`
+1. ✓ Extracts version from `.claude-plugin/marketplace.json`
 2. ✓ Verifies skill structure (SKILL.md, frontmatter, required fields)
 3. ✓ Builds the skill zip archive:
    - Contains: `markdown-linter-fixer/SKILL.md`
@@ -180,7 +200,10 @@ Before creating a release:
 - [ ] All changes are committed and pushed
 - [ ] Tests pass (if applicable)
 - [ ] CHANGELOG.md is updated
+- [ ] `.claude-plugin/plugin.json` version is updated
+- [ ] `.claude-plugin/marketplace.json` version is updated
 - [ ] Version number follows semver
+- [ ] All version sources match exactly
 - [ ] No uncommitted changes in working directory
 
 After creating PR:
@@ -209,28 +232,31 @@ export MD_FIXER_VERSION="1.5.0"
 # 1. Create release branch
 git checkout -b release/v$MD_FIXER_VERSION
 
-# 2. Update version in marketplace.json
+# 2. Update version in plugin manifests
 jq --arg version "$MD_FIXER_VERSION" '.plugins[0].version = $version' .claude-plugin/marketplace.json > .claude-plugin/marketplace.json.tmp && mv .claude-plugin/marketplace.json.tmp .claude-plugin/marketplace.json
+jq --arg version "$MD_FIXER_VERSION" '.version = $version' .claude-plugin/plugin.json > .claude-plugin/plugin.json.tmp && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
 
-# 3. Commit and push branch
-git add .claude-plugin/marketplace.json
+# 3. Update CHANGELOG.md with a new top entry using the same version
+
+# 4. Commit and push branch
+git add CHANGELOG.md .claude-plugin/plugin.json .claude-plugin/marketplace.json
 git commit -m "chore: bump version to $MD_FIXER_VERSION"
 git push -u origin release/v$MD_FIXER_VERSION
 
-# 4. Create PR
+# 5. Create PR
 gh pr create --title "chore: bump version to $MD_FIXER_VERSION" \
   --body "Updates version to $MD_FIXER_VERSION for upcoming release" \
   --base main --label "release"
 
-# 5. Review and merge PR via GitHub UI
+# 6. Review and merge PR via GitHub UI
 
-# 6. Pull merged changes and create tag
+# 7. Pull merged changes and create tag
 git checkout main
 git pull origin main
 git tag -a v$MD_FIXER_VERSION -m "Release version $MD_FIXER_VERSION"
 git push origin v$MD_FIXER_VERSION
 
-# 7. Create GitHub release
+# 8. Create GitHub release
 gh release create v$MD_FIXER_VERSION --title "v$MD_FIXER_VERSION" --generate-notes
 ```
 
