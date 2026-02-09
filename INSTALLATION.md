@@ -34,7 +34,7 @@ Restart Codex CLI (or start a new session) after installation so the skill is re
 ./scripts/uninstall-codex-skill.sh
 ```
 
-### Manual Installation
+### Manual Chat Mode Setup
 
 ```bash
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
@@ -84,7 +84,7 @@ Click one of these buttons to install the custom chat mode:
 
 ## Claude Code Installation
 
-### Quick Start
+### Plugin Quick Start
 
 ### 1. Add the Marketplace
 
