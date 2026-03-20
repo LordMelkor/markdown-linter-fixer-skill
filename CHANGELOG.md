@@ -5,6 +5,17 @@ All notable changes to the Markdown Linter Fixer skill will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.6] - 2026-02-09
+
+### Changed in 1.5.6
+
+- Improved skill metadata and structure in `skills/markdown-linter-fixer/SKILL.md`:
+  - Updated YAML `description` with explicit trigger phrases for better skill discoverability
+  - Added a top-level table of contents for faster navigation
+  - Added a quick reference checklist for faster execution
+  - Consolidated redundant scenario walkthroughs into a compact request-to-workflow mapping table
+  - Tightened key principles into concise, policy-preserving guidance
+
 ## [1.5.5] - 2026-02-09
 
 ### Added in 1.5.5
