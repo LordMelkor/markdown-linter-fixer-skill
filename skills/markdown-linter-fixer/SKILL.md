@@ -239,6 +239,24 @@ For issues not auto-fixed:
 - Never rewrite, rephrase, shorten, or restructure the author's text
 - If a rule cannot be satisfied with a pure formatting change, report it to the user and let them decide how to handle it
 
+#### Documentation-Specific Checks
+
+For documentation-heavy repositories (policies, procedures, guides), check for patterns the linter doesn't fully cover during manual review:
+
+**Mermaid diagrams:** Verify Mermaid blocks use correct fencing — the opening fence must be ` ```mermaid `, not ` ```Mermaid ` or a bare ` ``` ` with no language tag. A malformed fence renders as raw text on GitHub instead of a diagram. The linter sees these as ordinary code blocks and won't flag rendering issues.
+
+**Tables:** The linter catches malformed table structure (inconsistent column counts, missing pipes), but can't verify visual rendering. Complex tables — especially those with long cell content — should be previewed on GitHub, as they may overflow or wrap unexpectedly. Standard Markdown tables do not support block-level content (bullet lists, multi-paragraph text) inside cells. If a document requires this, suggest restructuring as a heading + list pattern or using HTML tables, and let the user decide.
+
+**GitHub callouts:** GitHub supports admonition syntax that renders as styled callout boxes — useful for policy exceptions, warnings, or effective dates:
+
+- `> [!NOTE]` — supplementary information
+- `> [!TIP]` — optional advice
+- `> [!IMPORTANT]` — critical context
+- `> [!WARNING]` — potential issues
+- `> [!CAUTION]` — serious risks
+
+The linter treats these as standard blockquotes and won't flag typos in the callout keyword (e.g., `> [!WARINING]` renders as plain text instead of a styled box). Flag any callout-style blockquotes for visual verification.
+
 ### Phase 6: Verification & Reporting
 
 #### Re-run Linter
@@ -282,6 +300,7 @@ Provide a comprehensive summary including:
 - [ ] Run diagnostics: `npx markdownlint-cli2 "**/*.md"`
 - [ ] Apply auto-fixes: `npx markdownlint-cli2 "**/*.md" --fix`
 - [ ] Resolve remaining issues manually using `references/MD029-Fix-Guide.md` and `references/MD036-Guide.md` as needed
+- [ ] For documentation repos: verify Mermaid blocks, complex tables, and GitHub callouts render correctly
 - [ ] Re-run verification: `npx markdownlint-cli2 "**/*.md"`
 - [ ] Summarize files changed, issue types fixed, and any remaining blockers
 
