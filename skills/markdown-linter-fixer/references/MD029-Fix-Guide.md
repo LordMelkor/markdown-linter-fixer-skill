@@ -21,7 +21,7 @@ The primary cause of MD029 errors is **improper indentation of content between o
 
 <!-- markdownlint-disable MD029 MD032 -->
 
-```markdown
+````markdown
 1. First item
 
 ```bash
@@ -29,8 +29,7 @@ some code here
 ```
 
 2. Second item  <!-- This triggers MD029 error -->
-
-```text
+````
 
 <!-- markdownlint-enable MD029 MD032 -->
 
@@ -42,7 +41,7 @@ In the above example, the code block breaks the list, causing item 2 to be seen 
 
 Indent code blocks with **4 spaces** (or more, depending on nesting level) to maintain list continuity:
 
-```markdown
+````markdown
 1. First item
 
     ```bash
@@ -58,7 +57,7 @@ Indent code blocks with **4 spaces** (or more, depending on nesting level) to ma
     ```
 
 4. Fourth item
-```
+````
 
 ### For Paragraphs
 
@@ -81,7 +80,7 @@ Indent continuation paragraphs with **at least 1 space** (typically 4 spaces for
 
 You can mix different types of content by maintaining proper indentation:
 
-```markdown
+````markdown
 1. First step
 
     ```bash
@@ -99,7 +98,7 @@ You can mix different types of content by maintaining proper indentation:
     Additional explanation here.
 
 3. Final step
-```
+````
 
 ## Indentation Rules
 
@@ -117,7 +116,7 @@ You can mix different types of content by maintaining proper indentation:
 
 ### ❌ Wrong: No indentation
 
-```markdown
+````markdown
 1. Item one
 
 ```bash
@@ -125,11 +124,11 @@ code here
 ```
 
 2. Item two  <!-- MD029 error -->
-```text
+````
 
 ### ❌ Wrong: Insufficient indentation
 
-```markdown
+````markdown
 1. Item one
 
   ```bash
@@ -137,12 +136,13 @@ code here
   ```
 
 2. Item two  <!-- MD029 error -->
-```text
+````
 
 <!-- markdownlint-enable MD029 MD032 MD031 -->
 
 ### ✅ Correct: Proper indentation
-```markdown
+
+````markdown
 1. Item one
 
     ```bash
@@ -150,7 +150,7 @@ code here
     ```
 
 2. Item two  <!-- No error -->
-```
+````
 
 ## Alternative Solutions (Not Recommended)
 
@@ -177,7 +177,7 @@ While the following approaches can technically resolve MD029 errors, they are no
 
 Sometimes you need to intentionally include examples of problematic markdown (like in this documentation file). In such cases, you can disable the MD029 rule for specific sections:
 
-```markdown
+````markdown
 <!-- markdownlint-disable MD029 MD032 -->
 
 1. Item one
@@ -189,7 +189,7 @@ code here
 2. Item two  <!-- This would normally trigger MD029 error -->
 
 <!-- markdownlint-enable MD029 MD032 -->
-```text
+````
 
 **When to use this approach:**
 - In documentation files showing examples of problematic code
@@ -212,7 +212,7 @@ Here's a common scenario showing how proper indentation fixes MD029 errors:
 
 ### Before (with MD029 errors):
 
-```markdown
+````markdown
 1. Clone the repository
 
 ```bash
@@ -226,10 +226,11 @@ npm install
 ```
 
 3. Run the application  <!-- MD029 error here -->
+````
 
 ### After (MD029 errors fixed)
 
-```markdown
+````markdown
 1. Clone the repository
 
     ```bash
@@ -247,6 +248,7 @@ npm install
     ```bash
     npm start
     ```
+````
 
 ## Verification
 
