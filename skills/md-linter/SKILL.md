@@ -4,7 +4,7 @@ description: Pre-push quality check for markdown documentation. Fix formatting i
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent
 ---
 
-# Markdown Linter Fixer
+# MD Linter
 
 ## Contents
 
@@ -54,7 +54,7 @@ Use this skill when:
 
 This skill uses a hybrid execution model to keep diagnostic noise out of the user's conversation while preserving interactive control over decisions that affect their files.
 
-**Subagent (phases 1-3):** Spawn a subagent using the Agent tool to handle environment setup, diagnostic scanning, and issue analysis. These phases are non-interactive — they only read state and produce a report. The subagent's prompt should include the full text of phases 1-3 below, the path to the project being linted, and the scan scope (specific files named by the user, changed files for a pre-push check, or full repo for setup/cleanup — see Phase 2).
+**Subagent (phases 1-3):** Delegate phases 1-3 to a subagent to handle environment setup, diagnostic scanning, and issue analysis. These phases are non-interactive — they only read state and produce a report. The subagent's prompt should include the full text of phases 1-3 below, the path to the project being linted, and the scan scope (specific files named by the user, changed files for a pre-push check, or full repo for setup/cleanup — see Phase 2).
 
 The subagent must return a structured diagnostic report containing:
 
@@ -66,6 +66,8 @@ The subagent must return a structured diagnostic report containing:
 - Any MD029 or MD013 errors flagged specifically (these need special handling)
 
 **Main session (phases 4-6):** Once the diagnostic report is returned, present a summary to the user and proceed with auto-fix, manual fixes, and verification interactively. These phases modify files and require user decisions — the user must be able to approve the git safety check, weigh in on unfixable rules like MD013, and confirm any config changes.
+
+**Cross-platform note:** This skill follows the [Agent Skills](https://agentskills.io) open standard. The subagent delegation above works on any platform that supports spawning subagents (e.g., Claude Code's Agent tool, Codex's spawn_agent). On platforms without subagent support, run all 6 phases sequentially in the main session — the workflow is identical, the diagnostic output just appears inline.
 
 ## Workflow Process
 

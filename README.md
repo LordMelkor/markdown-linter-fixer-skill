@@ -73,7 +73,7 @@ The skill runs a 6-phase workflow:
 5. **Manual fixes** — guides you through remaining issues with reference docs
 6. **Verify** — re-runs the linter to confirm everything is clean
 
-Phases 1-3 run in a background subagent to keep your conversation clean. Phases 4-6 are interactive — you approve changes and make decisions.
+On agents that support subagents (Claude Code, Codex, etc.), phases 1-3 run in a background subagent to keep your conversation clean. On agents without subagent support, all phases run inline — same workflow, just more visible output. Phases 4-6 are always interactive — you approve changes and make decisions.
 
 ## Reference guides
 
@@ -100,6 +100,10 @@ MD013 (line length) is disabled by default — long lines in documentation are n
 ## The cardinal rule
 
 The linter fixes formatting. It does not touch the words you wrote. If a lint rule can only be satisfied by changing what your text says, the skill reports it to you and lets you decide — it will never silently rewrite your content.
+
+## Compatibility
+
+This skill follows the [Agent Skills](https://agentskills.io) open standard and works with any compatible agent — Claude Code, Codex, Cursor, Goose, Gemini CLI, and others.
 
 ## License
 
