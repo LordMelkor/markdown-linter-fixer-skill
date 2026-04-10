@@ -253,7 +253,7 @@ npm install
 After applying the fixes, run markdownlint to verify:
 
 ```bash
-markdownlint your-file.md
+npx markdownlint-cli2 your-file.md
 ```
 
 You should see no MD029 errors in the output.

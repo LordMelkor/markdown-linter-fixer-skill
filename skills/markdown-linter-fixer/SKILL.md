@@ -50,25 +50,19 @@ Use this skill when:
 
 ### Phase 1: Environment Setup & Prerequisites
 
-#### Verify markdownlint-cli2 Installation
+#### Verify markdownlint-cli2 Availability
 
-Check if markdownlint-cli2 is installed:
-
-```bash
-markdownlint-cli2 --version
-```
-
-If missing, install it globally via npm:
+Check if markdownlint-cli2 is available locally in the project:
 
 ```bash
-npm install -g markdownlint-cli2
+npx markdownlint-cli2 --version
 ```
 
-Handle any permission or installation errors by suggesting:
+Use `npx markdownlint-cli2` for all commands — this avoids global installs and permission issues. If the project already has it as a dev dependency, npx will use that version. If not, npx will fetch it on demand.
 
+Only if npx is unavailable, fall back to:
 - Local installation: `npm install --save-dev markdownlint-cli2`
-- Using npx: `npx markdownlint-cli2`
-- User-specific npm directory configuration
+- Do not install globally with `npm install -g`
 
 #### Configuration File Check
 
@@ -104,12 +98,12 @@ This disables max line length warnings while keeping other rules active. The `ig
 
 ### Phase 2: Diagnostic Assessment
 
-#### Initial Root-Level Scan
+#### Full Project Scan
 
-Run linter on root-level markdown files:
+Scan all markdown files in the project:
 
 ```bash
-markdownlint-cli2 "*.md"
+npx markdownlint-cli2 "**/*.md"
 ```
 
 Document all issues found, including:
@@ -117,20 +111,6 @@ Document all issues found, including:
 - Error codes (e.g., MD029, MD001, MD032)
 - File names and line numbers
 - Brief description of each issue
-
-#### Comprehensive Recursive Scan
-
-Scan all markdown files including subdirectories:
-
-```bash
-markdownlint-cli2 "**/*.md"
-```
-
-This includes files in directories like:
-
-- `docs/`
-- `guides/`
-- Any other subdirectories containing markdown
 
 Create a complete inventory of all issues across the project.
 
@@ -162,12 +142,16 @@ Document patterns such as:
 
 ### Phase 4: Automatic Fixes
 
+#### Pre-Fix Safety Check
+
+Before running auto-fix, check if the project is a git repository. If it is, warn the user if there are uncommitted changes to markdown files — auto-fix modifies files in place and having a clean git state gives them an easy undo path via `git checkout`.
+
 #### Execute Auto-Fix
 
 Run the auto-fix command to correct all auto-fixable issues:
 
 ```bash
-markdownlint-cli2 "**/*.md" --fix
+npx markdownlint-cli2 "**/*.md" --fix
 ```
 
 This command will:
@@ -207,9 +191,8 @@ Load and consult `references/MD029-Fix-Guide.md` for detailed guidance on:
 
 MD013 (line length) violations cannot be fixed without changing content. When MD013 errors appear after auto-fix:
 
-1. If `.markdownlint-cli2.jsonc` exists, add `"MD013": false` to the config
-2. If no config exists, create one with MD013 disabled (see Phase 1)
-3. Never shorten, rewrite, or rephrase lines to reduce their length
+1. Report them to the user — explain that line length violations require either disabling MD013 in the config or manually rewriting, and ask how they'd like to proceed
+2. Never shorten, rewrite, or rephrase lines to reduce their length
 
 #### Apply Manual Corrections
 
@@ -218,7 +201,7 @@ For issues not auto-fixed:
 - Open affected files
 - Apply fixes according to error type (formatting changes only — indentation, blank lines, list markers, heading syntax)
 - Never rewrite, rephrase, shorten, or restructure the author's text
-- If a rule cannot be satisfied with a pure formatting change, disable or suppress it
+- If a rule cannot be satisfied with a pure formatting change, report it to the user and let them decide how to handle it
 
 ### Phase 6: Verification & Reporting
 
@@ -227,7 +210,7 @@ For issues not auto-fixed:
 Confirm all issues are resolved:
 
 ```bash
-markdownlint-cli2 "**/*.md"
+npx markdownlint-cli2 "**/*.md"
 ```
 
 If no errors appear, linting is complete. If errors remain, document them for additional manual fixes.
@@ -258,19 +241,19 @@ Provide a comprehensive summary including:
 
 ## Quick Reference Checklist
 
-- [ ] Verify markdownlint availability: `markdownlint-cli2 --version`
+- [ ] Verify markdownlint availability: `npx markdownlint-cli2 --version`
 - [ ] Create or validate markdownlint config (`.markdownlint-cli2.jsonc` preferred)
-- [ ] Run diagnostics: `markdownlint-cli2 "**/*.md"`
-- [ ] Apply auto-fixes: `markdownlint-cli2 "**/*.md" --fix`
+- [ ] Run diagnostics: `npx markdownlint-cli2 "**/*.md"`
+- [ ] Apply auto-fixes: `npx markdownlint-cli2 "**/*.md" --fix`
 - [ ] Resolve remaining issues manually using `references/MD029-Fix-Guide.md` and `references/MD036-Guide.md` as needed
-- [ ] Re-run verification: `markdownlint-cli2 "**/*.md"`
+- [ ] Re-run verification: `npx markdownlint-cli2 "**/*.md"`
 - [ ] Summarize files changed, issue types fixed, and any remaining blockers
 
 ## Key Principles
 
-- **Never alter semantic content.** Do not rewrite, rephrase, shorten, or restructure any text to satisfy a lint rule. If the only way to pass a rule is to change what the text says, disable the rule or suppress it inline.
+- **Never alter semantic content.** Do not rewrite, rephrase, shorten, or restructure any text to satisfy a lint rule. If the only way to pass a rule is to change what the text says, report it to the user and let them decide.
 - Respect project configuration: do not override existing lint rules unless explicitly requested.
-- Do not suppress or hide errors without user consent; fix issues rather than masking them. However, suppressing a rule is always preferable to rewriting content — if you must choose between the two, suppress the rule.
+- Do not suppress or hide errors without user consent. When a rule can only be satisfied by changing content, always ask the user rather than silently disabling or rewriting.
 - Apply progressive fixing: auto-fix first, then manual fixes for remaining issues.
 - Report clearly: what was found, what was fixed, and what still needs action.
 

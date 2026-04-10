@@ -40,4 +40,4 @@ Some content here...
 
 - Always use heading syntax (`####`) for section titles
 - Reserve bold text (`**text**`) for emphasis within paragraphs only
-- Run `markdownlint-cli2` to verify before committing
+- Run `npx markdownlint-cli2` to verify before committing
