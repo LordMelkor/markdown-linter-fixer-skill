@@ -22,6 +22,16 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 - [Common Scenarios](#common-scenarios)
 - [Resources](#resources)
 
+## The Cardinal Rule: Never Alter Content
+
+A linter fixes **formatting** — whitespace, blank lines, indentation, list markers, heading syntax. It does not touch the words the author wrote. Rephrasing, shortening, rewording, or restructuring text to satisfy a lint rule is not a fix — it's corruption of the author's work.
+
+If a lint rule can only be satisfied by changing what the text *says* (not how it's *formatted*), the correct response is one of:
+1. Disable the rule in the config file
+2. Report it to the user and let them decide (they may want an inline suppression comment, a config change, or to rewrite the text themselves)
+
+This applies to every rule, but especially to **MD013 (line length)**. Long headings, long sentences, and long URLs cannot be "fixed" by rewriting them. Disable MD013 or suppress it — never shorten prose to fit a character limit.
+
 ## Overview
 
 Systematically fix linting issues in `*.md` files using markdownlint-cli2 through a structured workflow that diagnoses, fixes automatically where possible, and guides manual fixes when needed.
@@ -193,14 +203,22 @@ Load and consult `references/MD029-Fix-Guide.md` for detailed guidance on:
 
 **Key insight**: MD029 errors often occur when code blocks, paragraphs, or other content between list items lack proper indentation (typically 4 spaces), causing markdown parsers to break list continuity.
 
+#### Handle MD013 Issues
+
+MD013 (line length) violations cannot be fixed without changing content. When MD013 errors appear after auto-fix:
+
+1. If `.markdownlint-cli2.jsonc` exists, add `"MD013": false` to the config
+2. If no config exists, create one with MD013 disabled (see Phase 1)
+3. Never shorten, rewrite, or rephrase lines to reduce their length
+
 #### Apply Manual Corrections
 
 For issues not auto-fixed:
 
 - Open affected files
-- Apply fixes according to error type
-- Maintain consistency with existing markdown style
-- Verify fixes don't break content
+- Apply fixes according to error type (formatting changes only — indentation, blank lines, list markers, heading syntax)
+- Never rewrite, rephrase, shorten, or restructure the author's text
+- If a rule cannot be satisfied with a pure formatting change, disable or suppress it
 
 ### Phase 6: Verification & Reporting
 
@@ -250,9 +268,9 @@ Provide a comprehensive summary including:
 
 ## Key Principles
 
-- Preserve content intent: fix formatting without changing meaning.
+- **Never alter semantic content.** Do not rewrite, rephrase, shorten, or restructure any text to satisfy a lint rule. If the only way to pass a rule is to change what the text says, disable the rule or suppress it inline.
 - Respect project configuration: do not override existing lint rules unless explicitly requested.
-- Do not suppress or hide errors without user consent; fix issues rather than masking them.
+- Do not suppress or hide errors without user consent; fix issues rather than masking them. However, suppressing a rule is always preferable to rewriting content — if you must choose between the two, suppress the rule.
 - Apply progressive fixing: auto-fix first, then manual fixes for remaining issues.
 - Report clearly: what was found, what was fixed, and what still needs action.
 
