@@ -1,6 +1,6 @@
 ---
 name: markdown-linter-fixer
-description: Fix markdownlint errors in markdown files using markdownlint-cli2. Use when asked to "markdown linter fixer", "run markdownlint", "fix markdown lint errors", "fix MD029", or "resolve ordered list issues" across one or more .md files.
+description: Pre-push quality check for markdown documentation. Fix formatting issues using markdownlint-cli2. Use when asked to "check my documents", "review before I push", "run the linter", "markdown linter fixer", "fix markdown lint errors", "fix MD029", or "resolve ordered list issues" across one or more .md files.
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent
 ---
 
@@ -35,23 +35,26 @@ This applies to every rule, but especially to **MD013 (line length)**. Long head
 
 ## Overview
 
-Systematically fix linting issues in `*.md` files using markdownlint-cli2 through a structured workflow that diagnoses, fixes automatically where possible, and guides manual fixes when needed.
+Pre-push quality gate for markdown documentation. Writers run this before pushing to GitHub to catch formatting issues that would affect rendering — broken numbered lists, inconsistent spacing, heading hierarchy problems, malformed tables. The linter ensures documents are well-formed so readers see clean, correctly rendered content.
+
+Systematically diagnoses, auto-fixes where possible, and guides manual fixes when needed, using markdownlint-cli2.
 
 ## When to Use This Skill
 
 Use this skill when:
 
-- Fixing markdown linting errors in projects
-- Standardizing markdown formatting across multiple files
-- Addressing ordered list numbering issues (MD029)
-- Preparing markdown documentation for quality standards
-- Setting up markdown linting for the first time in a project
+- Checking documents before pushing to GitHub
+- Reviewing newly written or edited documents for formatting issues
+- Fixing rendering problems — numbered lists restarting, headings out of order, inconsistent spacing
+- Addressing ordered list numbering issues (MD029) — especially common in procedures with sub-content between steps
+- Standardizing formatting across a documentation repository
+- Setting up markdown linting for the first time in a repo
 
 ## Execution Model
 
 This skill uses a hybrid execution model to keep diagnostic noise out of the user's conversation while preserving interactive control over decisions that affect their files.
 
-**Subagent (phases 1-3):** Spawn a subagent using the Agent tool to handle environment setup, diagnostic scanning, and issue analysis. These phases are non-interactive — they only read state and produce a report. The subagent's prompt should include the full text of phases 1-3 below, plus the path to the project being linted.
+**Subagent (phases 1-3):** Spawn a subagent using the Agent tool to handle environment setup, diagnostic scanning, and issue analysis. These phases are non-interactive — they only read state and produce a report. The subagent's prompt should include the full text of phases 1-3 below, the path to the project being linted, and the scan scope (specific files named by the user, changed files for a pre-push check, or full repo for setup/cleanup — see Phase 2).
 
 The subagent must return a structured diagnostic report containing:
 
@@ -116,12 +119,26 @@ This disables max line length warnings while keeping other rules active. The `ig
 
 ### Phase 2: Diagnostic Assessment
 
-#### Initial Root-Level Scan
+#### Determine Scan Scope
 
-Run linter on root-level markdown files:
+Before scanning, determine what to lint based on the user's request:
+
+1. **User names specific files** → scan only those files
+2. **Pre-push check** ("check before I push", "run the linter", or similar) → identify markdown files with uncommitted changes (modified, added, or untracked) using git status. Scan only those files. If no markdown files have changed, tell the user everything is clean — no scan needed.
+3. **Full repo sweep** ("clean up everything", "set up linting", first-time run, or when no git context is available) → scan all markdown files with `"**/*.md"`
+
+Use the determined scope for all subsequent phases — diagnostics, auto-fix, and verification should all target the same set of files.
+
+#### Run Diagnostic Scan
+
+Run the linter against the scoped files:
 
 ```bash
-npx markdownlint-cli2 "*.md"
+# Targeted (specific files or changed files):
+npx markdownlint-cli2 "path/to/file1.md" "path/to/file2.md"
+
+# Full repo:
+npx markdownlint-cli2 "**/*.md"
 ```
 
 Document all issues found, including:
@@ -129,22 +146,6 @@ Document all issues found, including:
 - Error codes (e.g., MD029, MD001, MD032)
 - File names and line numbers
 - Brief description of each issue
-
-#### Comprehensive Recursive Scan
-
-Scan all markdown files including subdirectories:
-
-```bash
-npx markdownlint-cli2 "**/*.md"
-```
-
-This includes files in directories like:
-
-- `docs/`
-- `guides/`
-- Any other subdirectories containing markdown
-
-Create a complete inventory of all issues across the project.
 
 ### Phase 3: Issue Analysis
 
@@ -184,9 +185,13 @@ Before running auto-fix, check if the project is a git repository. If it is, war
 
 #### Execute Auto-Fix
 
-Run the auto-fix command to correct all auto-fixable issues:
+Run the auto-fix command against the same scoped files from Phase 2:
 
 ```bash
+# Targeted:
+npx markdownlint-cli2 "path/to/file1.md" "path/to/file2.md" --fix
+
+# Full repo:
 npx markdownlint-cli2 "**/*.md" --fix
 ```
 
@@ -261,9 +266,13 @@ The linter treats these as standard blockquotes and won't flag typos in the call
 
 #### Re-run Linter
 
-Confirm all issues are resolved:
+Re-run the linter against the same scoped files to confirm all issues are resolved:
 
 ```bash
+# Targeted:
+npx markdownlint-cli2 "path/to/file1.md" "path/to/file2.md"
+
+# Full repo:
 npx markdownlint-cli2 "**/*.md"
 ```
 
@@ -293,15 +302,18 @@ Provide a comprehensive summary including:
    - Clear explanation of remaining work needed
    - Any error details with suggested solutions
 
+For routine pre-push checks where everything is clean (or only auto-fixable issues were found), keep the report brief — confirm it's clean and safe to push. Save the detailed breakdown for runs where manual intervention was needed.
+
 ## Quick Reference Checklist
 
 - [ ] Verify markdownlint availability: `npx markdownlint-cli2 --version`
 - [ ] Create or validate markdownlint config (`.markdownlint-cli2.jsonc` preferred)
-- [ ] Run diagnostics: `npx markdownlint-cli2 "**/*.md"`
-- [ ] Apply auto-fixes: `npx markdownlint-cli2 "**/*.md" --fix`
+- [ ] Determine scan scope: specific files, changed files (pre-push), or full repo
+- [ ] Run diagnostics: `npx markdownlint-cli2 <scoped files>`
+- [ ] Apply auto-fixes: `npx markdownlint-cli2 <scoped files> --fix`
 - [ ] Resolve remaining issues manually using `references/MD029-Fix-Guide.md` and `references/MD036-Guide.md` as needed
 - [ ] For documentation repos: verify Mermaid blocks, complex tables, and GitHub callouts render correctly
-- [ ] Re-run verification: `npx markdownlint-cli2 "**/*.md"`
+- [ ] Re-run verification: `npx markdownlint-cli2 <scoped files>`
 - [ ] Summarize files changed, issue types fixed, and any remaining blockers
 
 ## Key Principles
@@ -316,9 +328,11 @@ Provide a comprehensive summary including:
 
 | User Request Pattern | Workflow Emphasis | References |
 | --- | --- | --- |
-| "Set up markdown linting for my documentation" | Phase 1 -> Phase 2 -> Phase 4 -> Phase 6 | N/A |
-| "Fix all markdown linting errors in my project" | Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6 | Load MD029/MD036 guides only if related errors remain |
-| "Fix MD029" / "ordered list issues" | Phase 2 (target MD029) -> Phase 4 -> Phase 5 -> Phase 6 | `references/MD029-Fix-Guide.md` |
+| "Check my documents before I push" / "run the linter" | Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6 | Standard pre-push workflow. Most common invocation. Brief report if clean. |
+| "I just wrote a new policy, check it" | Phase 2 (scope to named files) -> Phase 4 -> Phase 5 -> Phase 6 | If user names specific files, scan only those — don't run the full repo sweep. |
+| "Fix all markdown errors" / "clean up the whole repo" | Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6 | Load MD029/MD036 guides only if related errors remain |
+| "Fix MD029" / "my numbered list is rendering wrong" | Phase 2 (target MD029) -> Phase 4 -> Phase 5 -> Phase 6 | `references/MD029-Fix-Guide.md` |
+| "Set up markdown linting for my repo" | Phase 1 -> Phase 2 -> Phase 4 -> Phase 6 | First-time setup. Create config, run initial scan, fix what's found. |
 
 ## Resources
 
