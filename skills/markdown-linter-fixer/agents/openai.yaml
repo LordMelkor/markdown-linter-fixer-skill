@@ -1,4 +1,0 @@
-interface:
-  display_name: "Markdown Linter Fixer"
-  short_description: "Check and fix markdownlint issues"
-  default_prompt: "Use $markdown-linter-fixer to scan Markdown files, apply safe fixes, and report any remaining manual issues."

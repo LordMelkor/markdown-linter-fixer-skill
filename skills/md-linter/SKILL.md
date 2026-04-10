@@ -1,6 +1,6 @@
 ---
-name: markdown-linter-fixer
-description: Pre-push quality check for markdown documentation. Fix formatting issues using markdownlint-cli2. Use when asked to "check my documents", "review before I push", "run the linter", "markdown linter fixer", "fix markdown lint errors", "fix MD029", or "resolve ordered list issues" across one or more .md files.
+name: md-linter
+description: Pre-push quality check for markdown documentation. Fix formatting issues using markdownlint-cli2. Use when asked to "check my documents", "review before I push", "run the linter", "lint my markdown", "fix markdown errors", "fix MD029", "my numbered list is broken", or "resolve ordered list issues" across one or more .md files.
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent
 ---
 

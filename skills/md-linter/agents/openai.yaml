@@ -1,0 +1,4 @@
+interface:
+  display_name: "MD Linter"
+  short_description: "Pre-push quality check for markdown documents"
+  default_prompt: "Use $md-linter to check my markdown files for formatting issues before I push."

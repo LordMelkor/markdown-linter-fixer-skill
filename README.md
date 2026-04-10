@@ -1,420 +1,110 @@
-# Markdown Linter Fixer
+# md-linter
 
-A Claude Agent Skill that systematically fixes linting issues in markdown files using markdownlint-cli2.
+Pre-push quality check for markdown documentation. Catches formatting issues that would render incorrectly on GitHub — broken numbered lists, heading hierarchy problems, inconsistent spacing, malformed tables — and fixes what it can automatically.
 
-## Overview
-
-This skill provides Claude with structured workflows to diagnose, fix, and verify markdown formatting issues across projects. It focuses on the most common real-world issues, especially MD029 errors caused by improper indentation of content within ordered lists.
-
-**Available for multiple platforms:**
-
-- **Claude Code**: Install as a plugin via marketplace
-- **VS Code**: Install as a custom chat mode for GitHub Copilot
-- **Codex CLI**: Install as a local Codex skill
-
-## What This Skill Does
-
-The Markdown Linter Fixer skill enables Claude to:
-
-- **Verify and install** markdownlint-cli2 if needed
-- **Scan markdown files** at root level and recursively through subdirectories
-- **Categorize errors** by type with frequency analysis
-- **Apply automatic fixes** for correctable issues
-- **Guide manual corrections** with detailed reference documentation
-- **Focus on MD029 errors** - the most common issue with lists containing code blocks
-- **Generate comprehensive reports** showing what was fixed and what remains
-
-## Why This Skill?
-
-Markdown linting errors are common in documentation, especially when combining:
-
-- Ordered lists with code blocks
-- Mixed content (paragraphs, blockquotes, nested lists)
-- Technical documentation with examples
-
-The **MD029 error** (ordered list item prefix) is particularly common and confusing. This skill includes a comprehensive guide explaining the root cause: **improper indentation** of content between list items, not just numbering inconsistencies.
-
-## Quick Links
-
-- **[Installation & Troubleshooting Guide](INSTALLATION.md)** - Complete installation guide with troubleshooting
-- **[Plugin Documentation](PLUGIN.md)** - Plugin-specific features and configuration
-- **[Changelog](CHANGELOG.md)** - Version history and release notes
-
-## Installation
-
-### For Codex CLI Users
-
-Use the canonical Codex instructions in [INSTALLATION.md](INSTALLATION.md#codex-cli-installation), including [uninstall](INSTALLATION.md#uninstall-from-codex) and verification steps.
-
-### For VS Code Users (GitHub Copilot Chat)
-
-[markdown-linter-fixer mode instructions](.github/chatmodes/markdown-linter-fixer.chatmode.md)
-
-Click the button below to install the custom chat mode in VS Code:
-
-[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://aka.ms/awesome-copilot/install/chatmode?url=vscode%3Achat-mode%2Finstall%3Furl%3Dhttps%3A%2F%2Fraw.githubusercontent.com%2Fs2005%2Fmarkdown-linter-fixer-skill%2Fmain%2F.github%2Fchatmodes%2Fmarkdown-linter-fixer.chatmode.md) [![Install in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://aka.ms/awesome-copilot/install/chatmode?url=vscode-insiders%3Achat-mode%2Finstall%3Furl%3Dhttps%3A%2F%2Fraw.githubusercontent.com%2Fs2005%2Fmarkdown-linter-fixer-skill%2Fmain%2F.github%2Fchatmodes%2Fmarkdown-linter-fixer.chatmode.md)
-
-> **Requirements:** GitHub Copilot subscription and VS Code version 1.96 or higher (custom chat modes available from v1.101+)
-
-**What you get:**
-
-- Markdown linting and fixing workflows directly in VS Code
-- Same 6-phase systematic approach
-- Access via GitHub Copilot Chat interface
-- Works alongside your existing VS Code extensions
-
-**To use after installation:**
-
-1. Open GitHub Copilot Chat in VS Code
-2. Select "markdown-linter-fixer" mode
-3. Ask to fix markdown linting errors or scan your files
-4. Follow the guided workflow
-
-### For Claude Code Users
-
-**Quick start for Claude Code:**
-
-```bash
-# Add the marketplace
-/plugin marketplace add https://github.com/s2005/markdown-linter-fixer-skill
-
-# Install the plugin
-/plugin install markdown-linter-fixer@markdown-linter-fixer-marketplace
-
-# Restart Claude Code
-```
-
-**For complete installation instructions**, including:
-
-- Local development setup
-- Team deployment
-- Manual installation (Claude.ai/Desktop/API)
-- Troubleshooting
-- Uninstallation with known bug workarounds
-
-See **[INSTALLATION.md](INSTALLATION.md)**.
-
-### Prerequisites
-
-**For VS Code users:**
-
-- VS Code version 1.96 or higher (for custom chat modes support)
-- GitHub Copilot subscription
-
-**For Claude Code users:**
-
-- Claude Code version 2.0.0 or higher (for plugin marketplace support)
-
-**For Codex CLI users:**
-
-- Codex CLI with access to `$CODEX_HOME/skills` (defaults to `~/.codex/skills`)
-
-**For all platforms:**
-
-The skill uses `markdownlint-cli2` under the hood to perform linting and fixes. You don't need to install it beforehand - Claude/VS Code will automatically check for it and guide you through installation if needed:
-
-```bash
-# Global installation (if prompted)
-npm install -g markdownlint-cli2
-
-# Or local to project (if prompted)
-npm install --save-dev markdownlint-cli2
-```
+Never changes your words. Only formatting.
 
 ## Usage
 
-Once installed, Claude/Codex automatically activates this skill when you:
+Invoke via slash command:
 
-- Ask about "markdown linting issues"
-- Mention "fixing MD029 errors"
-- Request to "scan markdown files"
-- Say "I have ordered list numbering problems"
-- Ask to "set up markdown linting"
-
-In Codex, you can also explicitly call the skill by name in your prompt:
-
-```text
-Use $markdown-linter-fixer to scan and fix markdown lint errors in this repo.
+```
+/md-linter
 ```
 
-### Slash Command
+Or just ask naturally:
 
-The plugin provides a unified slash command for markdown linting:
+- "Check my documents before I push"
+- "I just wrote a new policy, check it"
+- "My numbered list is rendering wrong"
+- "Fix all markdown errors"
+- "Set up linting for this repo"
 
-**Command Format:**
+### Slash command options
 
-```bash
-/markdown-linter-fixer:mdlinter [mode] [scope]
+```
+/md-linter:mdlinter [mode] [scope]
 ```
 
-**Arguments:**
+- **mode**: `check` (default, report only) or `fix` (apply changes)
+- **scope**: specific files, a folder, or omit for changed-files-only
 
-- `mode` (optional): Either `check` or `fix`
-  - `check` - Scan and report issues without making changes (DEFAULT)
-  - `fix` - Scan and automatically fix all issues
-  - If not specified or invalid, safely defaults to `check` mode
-- `scope` (optional): Target file(s), folder, or pattern. Defaults to all markdown files in the project.
+Examples:
 
-**Examples:**
-
-```bash
-# Check all files (default mode)
-/markdown-linter-fixer:mdlinter
-
-# Explicitly check all files
-/markdown-linter-fixer:mdlinter check
-
-# Fix all files
-/markdown-linter-fixer:mdlinter fix
-
-# Check only README.md (default mode)
-/markdown-linter-fixer:mdlinter README.md
-
-# Explicitly check only README.md
-/markdown-linter-fixer:mdlinter check README.md
-
-# Fix files in docs folder
-/markdown-linter-fixer:mdlinter fix docs/
-
-# Check multiple specific files
-/markdown-linter-fixer:mdlinter check README.md CONTRIBUTING.md
+```
+/md-linter:mdlinter                              # check changed files
+/md-linter:mdlinter fix                           # fix changed files
+/md-linter:mdlinter policies/access-control.md    # check one document
+/md-linter:mdlinter fix docs/                     # fix everything in docs/
 ```
 
-The check mode is useful for CI/CD or pre-commit checks, while fix mode runs the complete workflow to resolve all issues. For safety, the command always defaults to check mode when mode is not specified.
+## What it catches
 
-### Example Requests
+| Issue | Why it matters |
+|-------|---------------|
+| **Numbered lists breaking apart** | Steps with sub-content (paragraphs, diagrams, code) between them render as separate lists restarting at 1 |
+| **Heading hierarchy jumps** | Jumping from h2 to h4 confuses document structure |
+| **Spacing inconsistencies** | Extra blank lines, missing blank lines before lists |
+| **Malformed tables** | Missing pipes, inconsistent column counts |
+| **Bold text as headings** | `**Section**` should be `## Section` |
+| **Mermaid diagram fencing** | Malformed fences render as raw text instead of diagrams |
+| **GitHub callout typos** | `[!WARINING]` renders as plain text instead of a styled box |
 
-**Simple cleanup:**
+## Workflow
 
-```text
-Fix all markdown linting errors in my project
+```
+Write → Lint → Push → Read
 ```
 
-**Setup from scratch:**
+1. You write your documents in markdown
+2. You run `/md-linter` — it scans only the files you changed
+3. It auto-fixes what it can (spacing, blank lines, trailing whitespace)
+4. It walks you through anything that needs your attention
+5. You push clean, well-formatted documents to GitHub
 
-```text
-Set up markdown linting for my documentation
-```
+## How it works
 
-**Specific MD029 issues:**
+The skill runs a 6-phase workflow:
 
-```text
-I have ordered list numbering issues in my markdown files with code blocks
-```
+1. **Setup** — verifies `markdownlint-cli2` is available (via `npx`)
+2. **Scan** — lints the scoped files, produces an error inventory
+3. **Analyze** — categorizes errors, flags what needs manual attention
+4. **Auto-fix** — runs `--fix` for everything markdownlint can handle
+5. **Manual fixes** — guides you through remaining issues with reference docs
+6. **Verify** — re-runs the linter to confirm everything is clean
 
-**Comprehensive scan:**
+Phases 1-3 run in a background subagent to keep your conversation clean. Phases 4-6 are interactive — you approve changes and make decisions.
 
-```text
-Scan all markdown files and create a report of issues
-```
+## Reference guides
 
-## Plugin Structure
+The skill includes two reference guides, loaded only when needed:
 
-```tree
-.
-├── .claude-plugin/
-│   ├── plugin.json                 # Plugin manifest
-│   └── marketplace.json            # Marketplace catalog
-├── skills/                         # Skills directory
-│   └── markdown-linter-fixer/      # Skill directory
-│       ├── SKILL.md                # Main skill instructions
-│       └── references/
-│           └── MD029-Fix-Guide.md  # Detailed MD029 indentation guide
-├── examples/                       # Example files
-├── PLUGIN.md                       # Plugin documentation
-├── README.md                       # This file
-└── LICENSE                         # MIT License
-```
-
-### Progressive Disclosure Design
-
-Following Anthropic's recommendations, this skill uses progressive disclosure:
-
-1. **Level 1**: Metadata (`name` + `description`) - Always loaded (~50 words)
-2. **Level 2**: SKILL.md body - Loaded when skill is triggered (~2,000 words)
-3. **Level 3**: MD029-Fix-Guide.md - Loaded only when needed (~1,500 words)
-
-This keeps Claude's context window efficient while providing comprehensive guidance when required.
-
-## Key Features
-
-### 6-Phase Workflow
-
-1. **Environment Setup**: Verify tools and configuration
-2. **Diagnostic Assessment**: Scan files and document issues
-3. **Issue Analysis**: Categorize by error type
-4. **Automatic Fixes**: Apply auto-fix for correctable issues
-5. **Manual Fixes**: Guide through remaining corrections
-6. **Verification**: Confirm completion and report results
-
-### MD029 Indentation Focus
-
-The included reference guide focuses on the **root cause** of MD029 errors:
-
-- Explains why improper indentation breaks list continuity
-- Provides clear 4-space indentation rules
-- Shows ❌ wrong vs ✅ correct examples
-- Includes real-world before/after fixes
-- Documents when to use `<!-- markdownlint-disable MD029 -->`
-
-### Configuration Awareness
-
-- Respects existing `.markdownlint.json` files
-- Creates sensible defaults (disables MD013 line length)
-- Never overrides project-specific rules without permission
-
-## Common Scenarios
-
-### Scenario 1: Clean Project Setup
-
-```text
-User: "Set up markdown linting for my documentation"
-Claude: [Installs markdownlint-cli2, creates config, runs diagnostic, reports results]
-```
-
-### Scenario 2: Fix Existing Issues
-
-```text
-User: "Fix all markdown linting errors"
-Claude: [Scans, categorizes, auto-fixes, guides manual fixes, verifies completion]
-```
-
-### Scenario 3: MD029 Focus
-
-```text
-User: "My lists with code blocks show MD029 errors"
-Claude: [Scans for MD029, loads indentation guide, fixes with proper 4-space indentation]
-```
+- **`references/MD029-Fix-Guide.md`** — Ordered list issues. The most common problem in procedural documents: content between numbered steps breaks list continuity. Root cause is always indentation.
+- **`references/MD036-Guide.md`** — Bold-text-as-heading issues. Common when writing documents by hand.
 
 ## Configuration
 
-The skill creates `.markdownlint.json` with sensible defaults:
+Creates `.markdownlint-cli2.jsonc` if none exists:
 
 ```json
 {
-  "MD013": false
+  "config": {
+    "MD013": false
+  },
+  "ignores": []
 }
 ```
 
-This disables the max line length rule while keeping other formatting checks active.
+MD013 (line length) is disabled by default — long lines in documentation are normal and shouldn't be flagged.
 
-## Development & Contribution
+## The cardinal rule
 
-### Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/s2005/markdown-linter-fixer-skill.git
-cd markdown-linter-fixer-skill
-
-# The plugin is ready to use - skill is at skills/markdown-linter-fixer/
-# For manual installation, package just the skill:
-cd skills/markdown-linter-fixer
-zip -r ../../markdown-linter-fixer.zip SKILL.md references/
-```
-
-### Testing the Skill
-
-1. Install in Claude.ai or Claude Code
-2. Test with a project containing markdown files
-3. Verify it properly:
-   - Detects markdownlint-cli2 availability
-   - Scans files correctly
-   - Applies fixes appropriately
-   - Loads MD029 guide when needed
-   - Generates accurate reports
-
-### Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## Technical Details
-
-**Skill Type**: Workflow-based with progressive disclosure  
-**Dependencies**: markdownlint-cli2 (npm package)  
-**Supported Environments**: GitBash, WSL2, Linux, macOS  
-**File Format**: Markdown with YAML frontmatter  
-**Reference Files**: 1 (MD029-Fix-Guide.md)
-
-## Best Practices
-
-- **Start with auto-fix**: Let markdownlint-cli2 handle what it can
-- **Use the guide**: Load MD029-Fix-Guide.md for indentation issues
-- **Preserve content**: All fixes maintain original meaning
-- **Report clearly**: Always provide detailed before/after summaries
-- **Respect config**: Never override project linting rules
-
-## Security Considerations
-
-This skill:
-
-- ✅ Only reads/writes markdown files
-- ✅ Uses standard npm package (markdownlint-cli2)
-- ✅ Requires explicit user permission for file modifications
-- ✅ Provides clear explanations before executing commands
-- ✅ No external network calls (except npm installation)
-
-Always review the skill contents before installing, especially:
-
-- The commands it will execute
-- The files it will modify
-- The npm packages it requires
+The linter fixes formatting. It does not touch the words you wrote. If a lint rule can only be satisfied by changing what your text says, the skill reports it to you and lets you decide — it will never silently rewrite your content.
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file for details.
-
-## Resources
-
-- [Claude Skills Documentation](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview)
-- [Anthropic Skills Repository](https://github.com/anthropics/skills)
-- [markdownlint-cli2 Documentation](https://github.com/DavidAnson/markdownlint-cli2)
-- [Markdown Linting Rules (MD029)](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md029)
+MIT — see [LICENSE](LICENSE).
 
 ## Acknowledgements
 
-Created following Anthropic's [Agent Skills design pattern](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills).
-
-Special thanks to:
-
-- Anthropic for the [Skills framework](https://github.com/anthropics/skills)
-- GitHub for [GitHub Copilot](https://github.com/features/copilot) and custom chat modes support
-- GitHub [awesome-copilot](https://github.com/github/awesome-copilot) repository for [custom chat modes examples and patterns](https://github.com/github/awesome-copilot/blob/main/README.chatmodes.md)
-- David Anson for [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2)
-- The CommonMark specification team
-
-## Support
-
-### Reporting Issues
-
-If you encounter problems:
-
-1. **Check existing issues:** [GitHub Issues](../../issues)
-2. **Create new issue** with:
-   - Your operating system (Windows/macOS/Linux)
-   - Claude Code version: `claude --version`
-   - Node.js version: `node --version`
-   - markdownlint-cli2 version: `markdownlint-cli2 --version`
-   - Steps to reproduce
-   - Error messages or logs
-   - What you expected vs what happened
-
-### Get Help
-
-- **Issues**: Report bugs or request features via [GitHub Issues](../../issues)
-- **Discussions**: Ask questions in [GitHub Discussions](../../discussions)
-- **Documentation**:
-  - [Claude Skills docs](https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview)
-  - [VS Code Custom Chat Modes](https://code.visualstudio.com/docs/copilot/customization/custom-chat-modes)
-
----
-
-**Version**: 1.5.4
-**Last Updated**: October 26, 2025
-**Compatibility**: Claude Code (Sonnet 4+), VS Code (GitHub Copilot with custom chat modes)
+Forked from [s2005/markdown-linter-fixer-skill](https://github.com/s2005/markdown-linter-fixer-skill). Built on [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) by David Anson.
