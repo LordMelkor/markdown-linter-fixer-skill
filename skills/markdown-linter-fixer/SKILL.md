@@ -98,12 +98,12 @@ This disables max line length warnings while keeping other rules active. The `ig
 
 ### Phase 2: Diagnostic Assessment
 
-#### Full Project Scan
+#### Initial Root-Level Scan
 
-Scan all markdown files in the project:
+Run linter on root-level markdown files:
 
 ```bash
-npx markdownlint-cli2 "**/*.md"
+npx markdownlint-cli2 "*.md"
 ```
 
 Document all issues found, including:
@@ -111,6 +111,20 @@ Document all issues found, including:
 - Error codes (e.g., MD029, MD001, MD032)
 - File names and line numbers
 - Brief description of each issue
+
+#### Comprehensive Recursive Scan
+
+Scan all markdown files including subdirectories:
+
+```bash
+npx markdownlint-cli2 "**/*.md"
+```
+
+This includes files in directories like:
+
+- `docs/`
+- `guides/`
+- Any other subdirectories containing markdown
 
 Create a complete inventory of all issues across the project.
 
