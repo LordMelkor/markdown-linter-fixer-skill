@@ -3,6 +3,18 @@
 
 > **Note:** This documentation file has markdownlint rules disabled at the top because it intentionally contains examples of problematic markdown code that would otherwise trigger linting errors. This is a common practice in documentation that demonstrates what NOT to do.
 
+## Contents
+
+- [Problem Description](#problem-description)
+- [Root Cause](#root-cause)
+- [Solution: Proper Indentation](#solution-proper-indentation) (code blocks, paragraphs, mixed content)
+- [Indentation Rules](#indentation-rules) (quick reference table)
+- [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+- [Alternative Solutions (Not Recommended)](#alternative-solutions-not-recommended)
+- [Best Practices](#best-practices)
+- [Real-World Example](#real-world-example) (before/after)
+- [Verification](#verification)
+
 ## Problem Description
 
 The MD029 markdownlint rule triggers the following error:

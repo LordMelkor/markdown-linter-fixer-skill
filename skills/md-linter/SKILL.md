@@ -1,7 +1,9 @@
 ---
 name: md-linter
-description: Pre-push quality check for markdown documentation. Fix formatting issues using markdownlint-cli2. Use when asked to "check my documents", "review before I push", "run the linter", "lint my markdown", "fix markdown errors", "fix MD029", "my numbered list is broken", or "resolve ordered list issues" across one or more .md files.
-allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent
+description: Pre-push quality check for markdown documentation. Fixes formatting issues using markdownlint-cli2 — broken numbered lists, heading hierarchy problems, inconsistent spacing, malformed tables. Scans changed files before pushing to GitHub and auto-fixes what it can. Use when checking documents before a push, reviewing newly written markdown, fixing lint errors, resolving MD029 ordered list issues, or setting up linting for a repo.
+allowed-tools: Bash Read Write Edit Glob Grep Agent
+compatibility: Requires Node.js (npx) for markdownlint-cli2
+license: MIT
 ---
 
 # MD Linter
