@@ -1,7 +1,7 @@
 ---
 name: markdown-linter-fixer
 description: Fix markdownlint errors in markdown files using markdownlint-cli2. Use when asked to "markdown linter fixer", "run markdownlint", "fix markdown lint errors", "fix MD029", or "resolve ordered list issues" across one or more .md files.
-allowed-tools: Bash, Read, Write, Edit, Glob, Grep
+allowed-tools: Bash, Read, Write, Edit, Glob, Grep, Agent
 ---
 
 # Markdown Linter Fixer
@@ -10,6 +10,7 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 
 - [Overview](#overview)
 - [When to Use This Skill](#when-to-use-this-skill)
+- [Execution Model](#execution-model)
 - [Workflow Process](#workflow-process)
   - [Phase 1: Environment Setup & Prerequisites](#phase-1-environment-setup--prerequisites)
   - [Phase 2: Diagnostic Assessment](#phase-2-diagnostic-assessment)
@@ -45,6 +46,23 @@ Use this skill when:
 - Addressing ordered list numbering issues (MD029)
 - Preparing markdown documentation for quality standards
 - Setting up markdown linting for the first time in a project
+
+## Execution Model
+
+This skill uses a hybrid execution model to keep diagnostic noise out of the user's conversation while preserving interactive control over decisions that affect their files.
+
+**Subagent (phases 1-3):** Spawn a subagent using the Agent tool to handle environment setup, diagnostic scanning, and issue analysis. These phases are non-interactive — they only read state and produce a report. The subagent's prompt should include the full text of phases 1-3 below, plus the path to the project being linted.
+
+The subagent must return a structured diagnostic report containing:
+
+- Whether markdownlint-cli2 was available (and how it was resolved)
+- Whether a config file existed or was created
+- The complete list of errors: file path, line number, error code, description
+- Error counts grouped by type
+- Which errors are auto-fixable vs. require manual attention
+- Any MD029 or MD013 errors flagged specifically (these need special handling)
+
+**Main session (phases 4-6):** Once the diagnostic report is returned, present a summary to the user and proceed with auto-fix, manual fixes, and verification interactively. These phases modify files and require user decisions — the user must be able to approve the git safety check, weigh in on unfixable rules like MD013, and confirm any config changes.
 
 ## Workflow Process
 
@@ -153,6 +171,10 @@ Document patterns such as:
 - "Found 15 MD029 errors across 5 files"
 - "MD032 appears in all documentation files"
 - "MD029 errors primarily in files with code blocks within lists"
+
+### --- Subagent returns here. Phases 4-6 run in the main session. ---
+
+Present the diagnostic report to the user before proceeding. Summarize: how many files were scanned, total error count, breakdown by type, and any errors that will need user decisions (MD013, unfixable rules). Then continue with phases 4-6 interactively.
 
 ### Phase 4: Automatic Fixes
 
