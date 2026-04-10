@@ -21,6 +21,7 @@ Desktop.ini
 
 # Claude settings (local development only, not for distribution)
 .claude/
+CLAUDE.md
 
 # Python
 __pycache__/
